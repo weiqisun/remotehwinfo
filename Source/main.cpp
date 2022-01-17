@@ -156,8 +156,8 @@ bool EntryEnabled[EntryTotalCount] = {0};
 
 unsigned int Port = 60000;
 
-bool Hwinfo = true, Gpuz = true, Afterburner = true;
-bool LogFileEnable = true;
+bool Hwinfo = false, Gpuz = false, Afterburner = false;
+bool LogFileEnable = false;
 
 #define LOG(expression) Log(#expression, strrchr(__FILE__, '\\') + 1, __LINE__, (intptr_t) (expression))
 
@@ -514,7 +514,7 @@ size_t CreateJson(char **jsonData)
 						 L"\t\t\"readingSize\": %d,\n"
 						 L"\t\t\"readingCount\": %d,\n"
 						 L"\t\t\"sensors\":\n"
-						 L"\t\t[",
+						 L"\t\t{",
 						 hwinfo.signature,
 						 hwinfo.version,
 						 hwinfo.revision,
@@ -536,6 +536,7 @@ size_t CreateJson(char **jsonData)
 					{
 						swprintf(json + wcslen(json),
 								 L"%hs\n"
+								 L"\t\t\t\"%d\":\n"
 								 L"\t\t\t{\n"
 								 L"\t\t\t\t\"entryIndex\": %d,\n"
 								 L"\t\t\t\t\"sensorId\": %u,\n"
@@ -544,6 +545,7 @@ size_t CreateJson(char **jsonData)
 								 L"\t\t\t\t\"sensorNameUser\": \"%hs\"\n"
 								 L"\t\t\t}",
 								 first ? "" : ",",
+								 entryIndex,
 								 entryIndex,
 								 sensor->sensorId,
 								 sensor->sensorInst,
@@ -558,9 +560,9 @@ size_t CreateJson(char **jsonData)
 
 				swprintf(json + wcslen(json),
 						 L"\n"
-						 L"\t\t],\n"
+						 L"\t\t},\n"
 						 L"\t\t\"readings\":\n"
-						 L"\t\t[");
+						 L"\t\t{");
 
 				first = true;
 
@@ -572,6 +574,7 @@ size_t CreateJson(char **jsonData)
 					{
 						swprintf(json + wcslen(json),
 								 L"%hs\n"
+								 L"\t\t\t\"%d\":\n"
 								 L"\t\t\t{\n"
 								 L"\t\t\t\t\"entryIndex\": %d,\n"
 								 L"\t\t\t\t\"readingType\": %d,\n"
@@ -586,6 +589,7 @@ size_t CreateJson(char **jsonData)
 								 L"\t\t\t\t\"valueAvg\": %lf\n"
 								 L"\t\t\t}",
 								 first ? "" : ",",
+								 entryIndex,
 								 entryIndex,
 								 reading->readingType,
 								 reading->sensorIndex,
@@ -606,7 +610,7 @@ size_t CreateJson(char **jsonData)
 
 				swprintf(json + wcslen(json),
 						 L"\n"
-						 L"\t\t]\n"
+						 L"\t\t}\n"
 						 L"\t}");
 
 				free(sensors);
@@ -632,7 +636,7 @@ size_t CreateJson(char **jsonData)
 						 L"\t\t\"busy\": %d,\n"
 						 L"\t\t\"lastUpdate\": %d,\n"
 						 L"\t\t\"data\":\n"
-						 L"\t\t[",
+						 L"\t\t{",
 						 gpuz.version,
 						 gpuz.busy,
 						 gpuz.lastUpdate);
@@ -647,12 +651,14 @@ size_t CreateJson(char **jsonData)
 						{
 							swprintf(json + wcslen(json),
 									 L"%hs\n"
-									 L"\t\t\t{\n"
+									 L"\t\t\t\"%d\":\n"
+									 L"\t\t\t\{\n"
 									 L"\t\t\t\t\"entryIndex\": %d,\n"
 									 L"\t\t\t\t\"key\": \"%s\",\n"
 									 L"\t\t\t\t\"value\": \"%s\"\n"
 									 L"\t\t\t}",
 									 first ? "" : ",",
+									 entryIndex,
 									 entryIndex,
 									 FormatSpecialCharUnicode(gpuz.data[i].key),
 									 FormatSpecialCharUnicode(gpuz.data[i].value));
@@ -666,9 +672,9 @@ size_t CreateJson(char **jsonData)
 
 				swprintf(json + wcslen(json),
 						 L"\n"
-						 L"\t\t],\n"
+						 L"\t\t},\n"
 						 L"\t\t\"sensors\":\n"
-						 L"\t\t[");
+						 L"\t\t{");
 
 				first = true;
 
@@ -680,7 +686,8 @@ size_t CreateJson(char **jsonData)
 						{
 							swprintf(json + wcslen(json),
 									 L"%hs\n"
-									 L"\t\t\t{\n"
+									 L"\t\t\t\"%d\":\n"
+									 L"\t\t\t\{\n"
 									 L"\t\t\t\t\"entryIndex\": %d,\n"
 									 L"\t\t\t\t\"name\": \"%s\",\n"
 									 L"\t\t\t\t\"unit\": \"%s\",\n"
@@ -688,6 +695,7 @@ size_t CreateJson(char **jsonData)
 									 L"\t\t\t\t\"value\": %lf\n"
 									 L"\t\t\t}",
 									 first ? "" : ",",
+									 entryIndex,
 									 entryIndex,
 									 FormatSpecialCharUnicode(gpuz.sensors[i].name),
 									 FormatSpecialCharUnicode(gpuz.sensors[i].unit),
@@ -703,7 +711,7 @@ size_t CreateJson(char **jsonData)
 
 				swprintf(json + wcslen(json),
 						 L"\n"
-						 L"\t\t]\n"
+						 L"\t\t}\n"
 						 L"\t}");
 			}
 		}
@@ -731,7 +739,7 @@ size_t CreateJson(char **jsonData)
 						 L"\t\t\"entrySize\": %d,\n"
 						 L"\t\t\"time\": %d,\n"
 						 L"\t\t\"entries\":\n"
-						 L"\t\t[",
+						 L"\t\t{",
 						 afterburner.signature,
 						 afterburner.version,
 						 afterburner.headerSize,
@@ -753,6 +761,7 @@ size_t CreateJson(char **jsonData)
 
 						swprintf(json + wcslen(json),
 								 L"%hs\n"
+								 L"\t\t\t\"%d\":\n"
 								 L"\t\t\t{\n"
 								 L"\t\t\t\t\"entryIndex\": %d,\n"
 								 L"\t\t\t\t\"name\": \"%hs\",\n"
@@ -766,6 +775,7 @@ size_t CreateJson(char **jsonData)
 								 L"\t\t\t\t\"flags\": %d\n"
 								 L"\t\t\t}",
 								 first ? "" : ",",
+								 entryIndex,
 								 entryIndex,
 								 FormatSpecialChar(entry->name),
 								 FormatSpecialChar(entry->units),
@@ -785,7 +795,7 @@ size_t CreateJson(char **jsonData)
 
 				swprintf(json + wcslen(json),
 						 L"\n"
-						 L"\t\t]\n"
+						 L"\t\t}\n"
 						 L"\t}");
 
 				free(entries);
@@ -979,9 +989,9 @@ void PrintUsage()
 		"-log (0 = disable; 1 = enable = default)\n"
 		"-help\n"
 		"\n"
-		"http://ip:port/json.json (UTF-8)\n"
-		"http://ip:port/json.json?enable=0,1,2,3 (0,1,2,3 = entryIndex)\n"
-		"http://ip:port/json.json?disable=0,1,2,3 (0,1,2,3 = entryIndex)\n"
+		"http://ip:port/json (UTF-8)\n"
+		"http://ip:port/json?enable=0,1,2,3 (0,1,2,3 = entryIndex)\n"
+		"http://ip:port/json?disable=0,1,2,3 (0,1,2,3 = entryIndex)\n"
 		"http://ip:port/index.html (UTF-8)\n"
 		"http://ip:port/404.html (UTF-8)\n");
 }
